@@ -13,7 +13,9 @@
     "skipLibCheck": true,
     "verbatimModuleSyntax": false,
     "isolatedModules": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "experimentalDecorators": true,  //데코레이터 문법 사용
+    "emitDecoratorMetadata": true,
   },
   "include": ["src"]
 }

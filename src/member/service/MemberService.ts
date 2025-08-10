@@ -1,17 +1,13 @@
 import { IMemberRepository } from "@/member/domain/IMemberRepository";
 import { Member } from "../domain/Member";
 import * as bcrypt from 'bcrypt'; 
-import { MemberDto } from "@/member/web/dto";
+import { MemberDto, MemberSignUpDto } from "@/member/web/dto";
 
 export class MemberService {
     constructor(private readonly memberRepository: IMemberRepository) {}
 
     //회원가입입
-    public async signup(props: {
-        loginId: string;
-        nickname: string;
-        password: string;
-    }): Promise<MemberDto> {
+    public async signup(props: MemberSignUpDto): Promise<MemberDto> {
         //존재하는 멤버인지 확인
         const existingMember = await this.memberRepository.findByLoginId(props.loginId);
         if (existingMember) {

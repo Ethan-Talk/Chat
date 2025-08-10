@@ -1,5 +1,6 @@
 import { MemberId } from "@/member/domain/MemberId";
 import { Member } from "@/member/domain/Member";
+import { IsString, IsNotEmpty } from "class-validator";
 
 
 export class MemberDto {
@@ -24,4 +25,18 @@ export class MemberDto {
             nickname : member.nickname
         })
     }
+}
+
+export class MemberSignUpDto {
+  @IsString()  
+  @IsNotEmpty()
+  readonly loginId!: string;
+
+  @IsString()  
+  @IsNotEmpty()
+  readonly nickname!: string;
+
+  @IsString()  
+  @IsNotEmpty()
+  readonly password!: string;
 }
