@@ -51,7 +51,7 @@ memberRouter.post("/signup", async (req, res, next) => {
       return res.status(400).json({ message: "Validation failed", errors });
     }
 
-    const result = await memberService.signup(req.body);
+    const result = await memberService.signup(memberSignUpDto);
     res.status(201).json(result);
   } catch (error) {
     next(error);
