@@ -1,23 +1,21 @@
 import express from "express";
-import cors from "cors";
-import { createServer } from "http";
-import { Server } from "socket.io";
+import { memberRouter } from '@/member/web/member.router';
+import swaggerUi from 'swagger-ui-express'; // 👈 1. swagger-ui-express 임포트
+import { specs } from './config/swagger'; // 👈 2. 우리가 만든 설정 파일 임포트
 
+
+// 1. Express 앱 생성
 const app = express();
-app.use(cors());
+const port = 3000; // 서버를 실행할 포트
+
+// 2. JSON 요청 본문을 자동으로 파싱해주는 미들웨어 등록
 app.use(express.json());
 
-app.get("/health", (_req, res) => res.json({ ok: true }));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+// 3. 우리가 만든 라우터를 서버에 등록
+app.use('/api/v1/members', memberRouter);
 
-const httpServer = createServer(app);
-const io = new Server(httpServer, { cors: { origin: "*" } });
-
-io.on("connection", (socket) => {
-  console.log("connected:", socket.id);
-  socket.emit("welcome", { msg: "hello" });
-});
-
-const PORT = 3000;
-httpServer.listen(PORT, () => {
-  console.log(`listening on http://localhost:${PORT}`);
+// 4. 서버 실행
+app.listen(port, () => {
+  console.log(`🚀 Server is running at http://localhost:${port}`);
 });

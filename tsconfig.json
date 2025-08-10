@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["*"] //@/로 시작하는 모든 경로는 src/로 연결됨
+    },
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
@@ -9,7 +13,9 @@
     "skipLibCheck": true,
     "verbatimModuleSyntax": false,
     "isolatedModules": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "experimentalDecorators": true,  //데코레이터 문법 사용
+    "emitDecoratorMetadata": true,
   },
   "include": ["src"]
 }

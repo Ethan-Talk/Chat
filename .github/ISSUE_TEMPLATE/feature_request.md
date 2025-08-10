@@ -1,10 +1,9 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
-title: ''
-labels: ''
-assignees: ''
-
+title: ""
+labels: ""
+assignees: ""
 ---
 
 <!--  .github/ISSUE_TEMPLATE/feature_request.md  -->
@@ -21,17 +20,18 @@ assignees: ''
  ex. [FEAT] searchPublicCourse -->
 
 <!-- 라벨 라벨로 담당자를 표시
- ex. Hoyoung027 -->
+ ex. leerura -->
 
 <!-- assignees은 자기 자신에 해당하는지 팀에 해당하는지에 따라 작성 -->
 
 ## 🚀 기능 설명
+
 <!-- 어떤 기능이 필요한지 설명해주세요. -->
 
-
 ## 🏆 작업 목록
-<!-- 이 기능이 추가되면 어떤 이점이 있나요? -->
--
+
+## <!-- 이 기능이 추가되면 어떤 이점이 있나요? -->
 
 ## 🔗 참고 자료
+
 <!-- 참고한 자료가 있나요? -->
