@@ -3,8 +3,9 @@ import { PrismaMemberRepository } from "@/member/repository/PrismaMemberReposito
 import { MemberService } from "@/member/service/MemberService";
 import { Router } from "express";
 import { plainToInstance } from "class-transformer";
-import { MemberSignUpDto } from "./dto";
+import { MemberSignInDTO, MemberSignUpDto } from "./dto";
 import { validate } from "class-validator";
+import * as jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
 const memberRepository = new PrismaMemberRepository(prisma);
@@ -55,6 +56,34 @@ memberRouter.post("/signup", async (req, res, next) => {
     res.status(201).json(result);
   } catch (error) {
     next(error);
+  }
+});
+
+memberRouter.post("/signin", async (req, res, next) => {
+  try {
+    const memberSignInDTO = plainToInstance(MemberSignInDTO, req.body);
+    const errors = await validate(memberSignInDTO);
+    if (errors.length > 0) {
+      return res.status(400).json({ message: "Validation failed", errors });
+    }
+
+    const memberDto = await memberService.signin(memberSignInDTO);
+
+    // TODO : 토큰은 책임 분리 측면에서 여기에 맞지 않음. 따로 빼야겠음
+    const secretKey = process.env.JWT_SECRET;
+    if (!secretKey) throw new Error("JWT secret key not configured");
+
+    const accessToken = jwt.sign({ memberId: memberDto.id }, secretKey, {
+      expiresIn: "1h",
+    });
+
+    // 4. 응답 헤더에 토큰 추가
+    res.setHeader("Authorization", `Bearer ${accessToken}`);
+
+    // 5. 200 OK 응답
+    return res.status(200).json(memberDto);
+  } catch (error) {
+    return res.status(401).json({}); //TODO 에러메시지 처리
   }
 });
 
