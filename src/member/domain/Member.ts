@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'; 
 import { MemberId } from "./MemberId";
+import {Member as PrismaMember} from "@prisma/client"
 
 export interface IMember {
     id : MemberId;
@@ -41,5 +42,20 @@ export class Member implements IMember {
         // 보안을 위해 실제 해시값을 반환하는 대신 경고 메시지를 반환할 수도 있습니다.
         // return "Cannot access password directly";
         return this.password_hashed;
+    }
+
+    public static fromPersistence(prismaMember : PrismaMember) : Member {
+        const memberId = MemberId(prismaMember.id);
+        const loginId = prismaMember.loginId;
+        const nickname = prismaMember.nickname;
+        const hashedPassword = prismaMember.password;
+
+        return new Member(
+            memberId,
+            loginId,
+            nickname,
+            hashedPassword
+        )
+
     }
 }
