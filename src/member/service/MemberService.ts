@@ -6,6 +6,7 @@ import { MemberDto } from "@/member/web/dto";
 export class MemberService {
     constructor(private readonly memberRepository: IMemberRepository) {}
 
+    //회원가입입
     public async signup(props: {
         loginId: string;
         nickname: string;
