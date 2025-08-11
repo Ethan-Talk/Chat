@@ -32,6 +32,6 @@ export function authMiddleware(
     next();
   } catch (error) {
     // 토큰이 유효하지 않은 경우 (만료, 위조 등)
-    return res.status(403).json({ message: "Invalid accessToken" });
+    return res.status(401).json({ message: "Invalid accessToken" });
   }
 }

@@ -6,7 +6,7 @@ import { plainToInstance } from "class-transformer";
 import { MemberSignInDTO, MemberSignUpDto } from "./dto";
 import { validate } from "class-validator";
 import { generateAccessToken } from "@/auth/auth.utils";
-import { authMiddleware, AuthRequest } from "@/auth/aut.middleware";
+import { authMiddleware, AuthRequest } from "@/auth/auth.middleware";
 import { MemberId } from "../domain/MemberId";
 
 const prisma = new PrismaClient();
@@ -80,7 +80,7 @@ memberRouter.post("/signin", async (req, res, next) => {
     // 5. 200 OK 응답
     return res.status(200).json(memberDto);
   } catch (error) {
-    return res.status(401).json({}); //TODO 에러메시지 처리
+    return res.status(401).json({ message: "Invalid credentials" }); //TODO 에러메시지 처리
   }
 });
 
@@ -91,7 +91,7 @@ memberRouter.get("/me", authMiddleware, async (req: AuthRequest, res, next) => {
       return res.status(401).json({ message: "Authentication required" });
     }
 
-    const memberIdString = req.user!.memberId;
+    const memberIdString = req.user.memberId;
 
     const memberId = MemberId(memberIdString);
 
