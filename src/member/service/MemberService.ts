@@ -1,7 +1,7 @@
 import { IMemberRepository } from "@/member/domain/IMemberRepository";
 import { Member } from "../domain/Member";
+import { MemberId } from "../domain/MemberId";
 import * as bcrypt from "bcrypt";
-import * as jwt from "jsonwebtoken";
 import { MemberDto, MemberSignInDTO, MemberSignUpDto } from "@/member/web/dto";
 
 export class MemberService {
@@ -49,5 +49,15 @@ export class MemberService {
     }
 
     return MemberDto.fromDomain(existingMember);
+  }
+
+  public async getMemberProfile(memberId: MemberId): Promise<MemberDto | null> {
+    const member = await this.memberRepository.findById(memberId);
+
+    if (!member) {
+      throw new Error("Member not found");
+    }
+
+    return MemberDto.fromDomain(member);
   }
 }

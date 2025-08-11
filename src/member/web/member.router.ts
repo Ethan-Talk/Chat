@@ -5,7 +5,9 @@ import { Router } from "express";
 import { plainToInstance } from "class-transformer";
 import { MemberSignInDTO, MemberSignUpDto } from "./dto";
 import { validate } from "class-validator";
-import * as jwt from "jsonwebtoken";
+import { generateAccessToken } from "@/auth/auth.utils";
+import { authMiddleware, AuthRequest } from "@/auth/aut.middleware";
+import { MemberId } from "../domain/MemberId";
 
 const prisma = new PrismaClient();
 const memberRepository = new PrismaMemberRepository(prisma);
@@ -70,12 +72,7 @@ memberRouter.post("/signin", async (req, res, next) => {
     const memberDto = await memberService.signin(memberSignInDTO);
 
     // TODO : 토큰은 책임 분리 측면에서 여기에 맞지 않음. 따로 빼야겠음
-    const secretKey = process.env.JWT_SECRET;
-    if (!secretKey) throw new Error("JWT secret key not configured");
-
-    const accessToken = jwt.sign({ memberId: memberDto.id }, secretKey, {
-      expiresIn: "1h",
-    });
+    const accessToken = generateAccessToken(memberDto.id);
 
     // 4. 응답 헤더에 토큰 추가
     res.setHeader("Authorization", `Bearer ${accessToken}`);
@@ -84,6 +81,25 @@ memberRouter.post("/signin", async (req, res, next) => {
     return res.status(200).json(memberDto);
   } catch (error) {
     return res.status(401).json({}); //TODO 에러메시지 처리
+  }
+});
+
+memberRouter.get("/me", authMiddleware, async (req: AuthRequest, res, next) => {
+  try {
+    if (!req.user) {
+      // 미들웨어는 통과했지만, 이 경로는 인증이 필수이므로 401 에러를 응답합니다.
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    const memberIdString = req.user!.memberId;
+
+    const memberId = MemberId(memberIdString);
+
+    const memberProfile = await memberService.getMemberProfile(memberId);
+
+    res.status(200).json(memberProfile);
+  } catch (error) {
+    next(error);
   }
 });
 
