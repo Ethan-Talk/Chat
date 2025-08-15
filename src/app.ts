@@ -5,7 +5,8 @@ import { specs } from "./config/swagger"; // 👈 2. 우리가 만든 설정 파
 import http from "http";
 import cors from "cors";
 import { Server } from "socket.io";
-import { setupChatGateway } from "./chat/chat.gateway";
+import { ChatGateway } from "./chat/chat.gateway";
+import { instrument } from "@socket.io/admin-ui";
 
 // 1. Express 앱 생성
 const app = express();
@@ -13,12 +14,18 @@ const port = 8080; // 서버를 실행할 포트
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
+    origin: ["https://admin.socket.io"], // Admin UI의 출처를 명시적으로 허용
+    credentials: true,
   },
 });
 
-setupChatGateway(io);
+instrument(io, {
+  auth: false,
+  mode: "development",
+});
+
+const chatGateway = new ChatGateway(io);
+chatGateway.initialize();
 
 app.use(
   cors({
