@@ -10,7 +10,7 @@ export function setupChatGateway(io: Server) {
     }
     try {
       const decoded = validateAccessToken(token);
-      (socket as any).data = { memberId: decoded.memberId };
+      socket.data = { memberId: decoded.memberId };
       next();
     } catch (error) {
       return next(new Error("유효하지 않은 액세스 토큰"));
@@ -18,7 +18,7 @@ export function setupChatGateway(io: Server) {
   });
 
   io.on("connection", (socket: Socket) => {
-    const memberId = (socket as any).data.memberId;
+    const memberId = socket.data.memberId;
     console.log(`✅ User connected: ${socket.id}, Member ID: ${memberId}`);
 
     // 'sendMessage' 이벤트 리스너

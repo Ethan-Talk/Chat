@@ -1,0 +1,17 @@
+# Git
+.git
+.gitignore
+
+# Node
+node_modules
+
+# Prisma
+/prisma/dev.db*
+
+# Env
+.env*
+
+# IDE / OS
+.vscode
+.idea
+*.DS_Store

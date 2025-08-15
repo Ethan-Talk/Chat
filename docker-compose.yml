@@ -1,0 +1,44 @@
+# Docker Compose 파일 형식 버전을 지정합니다.
+version: '3.8'
+
+# 실행할 서비스(컨테이너)들을 정의합니다.
+services:
+  # 1. 백엔드 애플리케이션 서비스
+  backend:
+    # 현재 폴더의 Dockerfile을 사용하여 이미지를 빌드합니다.
+    build: .
+    # 컨테이너의 이름을 지정합니다.
+    container_name: chat-backend
+    # 호스트의 8080 포트와 컨테이너의 8080 포트를 연결합니다.
+    ports:
+      - "8080:8080"
+    # 컨테이너에 전달할 환경 변수를 정의합니다.
+    # .env 파일의 값을 여기에 덮어쓰거나, 이 값을 사용합니다.
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+    # 'db' 서비스가 완전히 실행된 후에 'backend' 서비스를 시작합니다.
+    depends_on:
+      - db
+
+  # 2. MySQL 데이터베이스 서비스
+  db:
+    # Docker Hub의 공식 MySQL 8.0 이미지를 사용합니다.
+    image: mysql:8.0
+    container_name: chat-mysql
+    # MySQL 서버에 필요한 환경 변수를 설정합니다.
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    # 호스트의 3307 포트와 컨테이너의 3306 포트를 연결합니다. (DB 툴로 접속 시 필요)
+    ports:
+      - "3307:3306"
+    # 데이터베이스 데이터를 영구적으로 저장하기 위해 볼륨을 사용합니다.
+    volumes:
+      - db-data:/var/lib/mysql
+
+# 데이터 영속성을 위한 Docker 볼륨을 정의합니다.
+volumes:
+  db-data:

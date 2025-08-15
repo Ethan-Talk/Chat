@@ -9,7 +9,7 @@ import { setupChatGateway } from "./chat/chat.gateway";
 
 // 1. Express 앱 생성
 const app = express();
-const port = 3000; // 서버를 실행할 포트
+const port = 8080; // 서버를 실행할 포트
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
   cors: {
