@@ -35,18 +35,16 @@ export class ChatGateway {
     this.userSocketMap.set(memberId, socket.id);
 
     // 각 이벤트에 대한 핸들러를 등록
-    socket.on("publicMessage", (message: string) =>
+    socket.on("public", (message: string) =>
       this.handlePublicMessage(socket, message)
     );
-    socket.on("privateMessage", (data) =>
-      this.handlePrivateMessage(socket, data)
-    );
+    socket.on("private", (data) => this.handlePrivateMessage(socket, data));
     socket.on("disconnect", () => this.handleDisconnect(socket));
   };
 
   // 전체 메시지 처리
   private handlePublicMessage = (socket: Socket, message: string) => {
-    this.io.emit("PublicMessage", {
+    this.io.emit("public", {
       senderId: socket.data.memberId,
       message: message,
       timestamp: new Date(),
@@ -68,8 +66,8 @@ export class ChatGateway {
     };
 
     if (recipientSocketId) {
-      this.io.to(recipientSocketId).emit("newMessage", messagePayload); //받는 사람
-      socket.emit("newMessage", messagePayload); //보낸 사람.
+      this.io.to(recipientSocketId).emit("private", messagePayload); //받는 사람
+      socket.emit("private", messagePayload); //보낸 사람.
     } else {
       socket.emit("deliveryFailed", {
         recipientId: data.recipientId,
