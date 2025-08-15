@@ -1,21 +1,35 @@
 import express from "express";
-import { memberRouter } from '@/member/web/member.router';
-import swaggerUi from 'swagger-ui-express'; // 👈 1. swagger-ui-express 임포트
-import { specs } from './config/swagger'; // 👈 2. 우리가 만든 설정 파일 임포트
-
+import { memberRouter } from "@/member/web/member.router";
+import swaggerUi from "swagger-ui-express"; // 👈 1. swagger-ui-express 임포트
+import { specs } from "./config/swagger"; // 👈 2. 우리가 만든 설정 파일 임포트
+import http from "http";
+import cors from "cors";
+import { Server } from "socket.io";
+import { setupChatGateway } from "./chat/chat.gateway";
 
 // 1. Express 앱 생성
 const app = express();
 const port = 3000; // 서버를 실행할 포트
+const httpServer = http.createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
 
-// 2. JSON 요청 본문을 자동으로 파싱해주는 미들웨어 등록
+setupChatGateway(io);
+
+app.use(
+  cors({
+    exposedHeaders: ["Authorization"],
+  })
+);
+
 app.use(express.json());
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+app.use("/api/v1/members", memberRouter);
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
-// 3. 우리가 만든 라우터를 서버에 등록
-app.use('/api/v1/members', memberRouter);
-
-// 4. 서버 실행
-app.listen(port, () => {
+httpServer.listen(port, () => {
   console.log(`🚀 Server is running at http://localhost:${port}`);
 });
