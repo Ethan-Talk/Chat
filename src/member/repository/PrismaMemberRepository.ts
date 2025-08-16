@@ -30,6 +30,14 @@ export class PrismaMemberRepository implements IMemberRepository {
       where: { id: id },
     });
 
+    return prismaMember ? Member.fromPersistence(prismaMember) : null;
+  }
+
+  async findByLoginId(loginId: string): Promise<Member | null> {
+    const prismaMember = await this.prisma.member.findUnique({
+      where: { loginId: loginId },
+    });
+
     if (!prismaMember) {
       return null;
     }
@@ -37,21 +45,9 @@ export class PrismaMemberRepository implements IMemberRepository {
     return Member.fromPersistence(prismaMember);
   }
 
-  async findByLoginId(loginId: string) : Promise<Member | null> {
-    const prismaMember = await this.prisma.member.findUnique({
-        where: { loginId: loginId},
-    });
-
-    if (!prismaMember) {
-        return null;
-    }
-
-    return Member.fromPersistence(prismaMember);
-  }
-
-  async deleteById(id : MemberId) : Promise<void> {
+  async deleteById(id: MemberId): Promise<void> {
     await this.prisma.member.delete({
-        where: {id: id},
+      where: { id: id },
     });
   }
 }

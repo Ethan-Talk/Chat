@@ -1,6 +1,6 @@
 //TODO: ChatRoomId 분리
 export type ChatRoomId = string & { readonly __brand: "ChatRoomId" };
-import { RoomType } from "@prisma/client";
+import { RoomType, ChatRoom as PrismaChatRoom } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 
 export function ChatRoomId(value: string): ChatRoomId {
@@ -28,5 +28,14 @@ export class ChatRoom {
     }
 
     return new ChatRoom(id, name, props.type, createdAt);
+  }
+
+  public static fromPersistence(prismaRoom: PrismaChatRoom): ChatRoom {
+    const id = ChatRoomId(prismaRoom.id);
+    const name = prismaRoom.name;
+    const type = prismaRoom.type;
+    const createdAt = prismaRoom.createdAt;
+
+    return new ChatRoom(id, name, type, createdAt);
   }
 }

@@ -34,6 +34,8 @@ export class ChatGateway {
     console.log(`✅ User connected: ${socket.id}, Member ID: ${memberId}`);
     this.userSocketMap.set(memberId, socket.id);
 
+    socket.join("lobby");
+
     // 각 이벤트에 대한 핸들러를 등록
     socket.on("public", (message: string) =>
       this.handlePublicMessage(socket, message)
