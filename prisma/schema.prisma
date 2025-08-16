@@ -4,6 +4,7 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+//TODO: 연관관계 Cascade 확정
 generator client {
   provider = "prisma-client-js"
   //output   = "../src/generated/prisma"
@@ -20,6 +21,56 @@ model Member {
   nickname String
   password String
 
+  chatRoomMembers ChatRoomMember[]
+  messages        ChatMessage[] //TODO 단방향으로 하는 법 알아보기
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum RoomType {
+  PRIVATE
+  GROUP
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+}
+
+model ChatRoom {
+  id        String   @id @default(uuid())
+  name      String?
+  type      RoomType @default(PRIVATE)
+  createdAt DateTime @default(now())
+
+  // 관계 필드
+  members  ChatRoomMember[]
+  messages ChatMessage[]
+}
+
+model ChatRoomMember {
+  id       String   @id @default(uuid())
+  joinedAt DateTime @default(now())
+
+  // 관계 설정
+  member     Member   @relation(fields: [memberId], references: [id])
+  memberId   String
+  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id])
+  chatRoomId String
+
+  @@unique([memberId, chatRoomId])
+}
+
+model ChatMessage {
+  id          String      @id @default(uuid())
+  content     String
+  messageType MessageType @default(TEXT)
+  createdAt   DateTime    @default(now())
+
+  // 관계 설정
+  sender     Member   @relation(fields: [senderId], references: [id])
+  senderId   String
+  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id])
+  chatRoomId String
 }
