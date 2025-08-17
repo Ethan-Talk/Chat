@@ -11,7 +11,7 @@ function getJwtSecret(): string {
 
 export function generateAccessToken(memberId: MemberId): string {
   const accessToken = jwt.sign({ memberId }, getJwtSecret(), {
-    expiresIn: "1h",
+    expiresIn: "100h",
   });
   return accessToken;
 }
