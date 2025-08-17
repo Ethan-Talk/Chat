@@ -6,4 +6,6 @@ export interface IMemberRepository {
   findById(id: MemberId): Promise<Member | null>;
   findByLoginId(loginId: string): Promise<Member | null>;
   deleteById(id: MemberId): Promise<void>;
+
+  findManyByIds(memberIds: MemberId[]): Promise<Member[]>;
 }

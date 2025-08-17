@@ -5,8 +5,9 @@ import { specs } from "./config/swagger"; // 👈 2. 우리가 만든 설정 파
 import http from "http";
 import cors from "cors";
 import { Server } from "socket.io";
-import { ChatGateway } from "./chat/chat.gateway";
+import { ChatGateway } from "./chat/ChatGateway";
 import { instrument } from "@socket.io/admin-ui";
+import { chatRoomRouter } from "./chat/web/controller/chatRoom.router";
 
 // 1. Express 앱 생성
 const app = express();
@@ -36,6 +37,7 @@ app.use(
 app.use(express.json());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use("/api/v1/members", memberRouter);
+app.use("/api/v1/chatRooms", chatRoomRouter);
 
 httpServer.listen(port, () => {
   console.log(`🚀 Server is running at http://localhost:${port}`);

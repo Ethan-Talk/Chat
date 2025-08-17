@@ -1,6 +1,6 @@
 import { Server, Socket } from "socket.io";
 import { validateAccessToken } from "@/auth/auth.utils";
-
+//TODO: 파일 네이밍 변경
 export class ChatGateway {
   private io: Server;
   private userSocketMap = new Map<string, string>();
@@ -46,6 +46,8 @@ export class ChatGateway {
 
   // 전체 메시지 처리
   private handlePublicMessage = (socket: Socket, message: string) => {
+    const senderId = socket.data.memberId;
+
     this.io.emit("public", {
       senderId: socket.data.memberId,
       message: message,

@@ -21,32 +21,53 @@ export class ChatRoomCreateRequestDTO {
   @IsUUID("4", { each: true, message: "각 멤버 ID는 UUID 형식이어야 합니다." })
   memberIds!: string[];
 }
+//TODO: Union vs 부모자식
+class ChatRoomBaseDto {
+  readonly id: ChatRoomId;
+  readonly type: RoomType;
+  readonly createdAt: Date;
 
-export class ChatRoomDTO {
-  id: ChatRoomId;
-  name?: string;
-  type: RoomType;
-  createdAt: Date;
-
-  private constructor(props: {
+  protected constructor(props: {
     id: ChatRoomId;
-    name?: string;
     type: RoomType;
     createdAt: Date;
   }) {
     this.id = props.id;
-    this.name = props.name;
     this.type = props.type;
     this.createdAt = props.createdAt;
   }
+}
 
-  //TODO: name 여부에 따라 분리를 해야겠네....
-  public static fromDomain(chatRoom: ChatRoom): ChatRoomDTO {
-    return new ChatRoomDTO({
+// 1:1 채팅방 DTO (이름이 없음)
+export class PrivateChatRoomDto extends ChatRoomBaseDto {
+  constructor(props: { id: ChatRoomId; createdAt: Date }) {
+    super({ ...props, type: RoomType.PRIVATE });
+  }
+
+  public static fromDomain(chatRoom: ChatRoom): PrivateChatRoomDto {
+    return new PrivateChatRoomDto({
       id: chatRoom.id,
-      name: chatRoom.name,
-      type: chatRoom.type,
       createdAt: chatRoom.createdAt,
     });
   }
 }
+
+// 그룹 채팅방 DTO (이름이 필수)
+export class GroupChatRoomDto extends ChatRoomBaseDto {
+  readonly name: string;
+
+  constructor(props: { id: ChatRoomId; name: string; createdAt: Date }) {
+    super({ ...props, type: RoomType.GROUP });
+    this.name = props.name;
+  }
+
+  public static fromDomain(chatRoom: ChatRoom): GroupChatRoomDto {
+    return new GroupChatRoomDto({
+      id: chatRoom.id,
+      name: chatRoom.name!,
+      createdAt: chatRoom.createdAt,
+    });
+  }
+}
+
+export type ChatRoomDto = PrivateChatRoomDto | GroupChatRoomDto;

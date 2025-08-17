@@ -2,11 +2,15 @@ import { PrismaClient } from "@prisma/client";
 import { IChatRoomRepository } from "../domain/IChatRoomRepository";
 import { ChatRoom, ChatRoomId } from "../domain/ChatRoom";
 import { Member } from "@/member/domain/Member";
+import { MemberId } from "@/member/domain/MemberId";
 
 export class PrismaChatRoomRepository implements IChatRoomRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
-  async create(room: ChatRoom, initialMembers: Member[]): Promise<ChatRoom> {
+  async create(
+    room: ChatRoom,
+    initialMemberIds: MemberId[]
+  ): Promise<ChatRoom> {
     const prismaChatRoom = await this.prisma.chatRoom.create({
       data: {
         id: room.id,
@@ -14,8 +18,8 @@ export class PrismaChatRoomRepository implements IChatRoomRepository {
         type: room.type,
         createdAt: room.createdAt,
         members: {
-          create: initialMembers.map((member) => ({
-            memberId: member.id,
+          create: initialMemberIds.map((memberId) => ({
+            memberId: memberId,
           })),
         },
       },

@@ -50,4 +50,15 @@ export class PrismaMemberRepository implements IMemberRepository {
       where: { id: id },
     });
   }
+
+  async findManyByIds(memberIds: MemberId[]): Promise<Member[]> {
+    const prismaMembers = await this.prisma.member.findMany({
+      where: {
+        id: {
+          in: memberIds,
+        },
+      },
+    });
+    return prismaMembers.map(Member.fromPersistence);
+  }
 }
