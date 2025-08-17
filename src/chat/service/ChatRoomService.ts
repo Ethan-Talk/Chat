@@ -46,6 +46,7 @@ export class ChatRoomService {
   public async findChatRoomsByMemberId(
     memberId: MemberId
   ): Promise<ChatRoomDto[]> {
+    //TODO 정렬기준 생각하기.
     const chatRooms = await this.chatRoomRepository.findByAllByMemberId(
       memberId
     );
