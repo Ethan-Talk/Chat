@@ -48,4 +48,19 @@ export class PrismaChatRoomRepository implements IChatRoomRepository {
 
     return prismaChatRooms.map(ChatRoom.fromPersistence);
   }
+
+  async isMemberInRoom(
+    senderId: MemberId,
+    chatRoomId: ChatRoomId
+  ): Promise<boolean> {
+    // 중간테이블 조회
+    const relation = await this.prisma.chatRoomMember.findFirst({
+      where: {
+        memberId: senderId,
+        chatRoomId: chatRoomId,
+      },
+    });
+
+    return !!relation;
+  }
 }

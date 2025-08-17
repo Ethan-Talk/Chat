@@ -7,5 +7,7 @@ export interface IChatRoomRepository {
   findById(id: ChatRoomId): Promise<ChatRoom | null>;
   findByAllByMemberId(memberId: MemberId): Promise<ChatRoom[]>;
 
+  isMemberInRoom(senderId: MemberId, chatRoomId: ChatRoomId): Promise<boolean>;
+
   // TODO: addMember, removeMember, deleteChatRoom
 }

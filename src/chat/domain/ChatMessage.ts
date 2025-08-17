@@ -1,8 +1,9 @@
 import { MessageType } from "@prisma/client";
 import { MemberId } from "@/member/domain/MemberId";
 import { ChatRoom, ChatRoomId } from "@/chat/domain/ChatRoom"; //TODO: ID들은 한 파일에 모으는 것을 고려
-import { Member } from "@/member/domain/Member";
+import { ChatMessage as PrismaChatMessage } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
+import { prisma } from "@/lib/prisma";
 
 export type ChatMessageId = string & { readonly __brand: "ChatMessageId" };
 export function ChatMessageId(value: string): ChatMessageId {
@@ -23,10 +24,10 @@ export class ChatMessage {
   ) {}
 
   public static create(props: {
-    sender: Member;
+    senderId: MemberId;
     messageType: MessageType;
     content: string;
-    chatRoom: ChatRoom;
+    chatRoomId: ChatRoomId;
   }): ChatMessage {
     const id = ChatMessageId(uuidv4());
     const createdAt = new Date();
@@ -37,10 +38,28 @@ export class ChatMessage {
 
     return new ChatMessage(
       id,
-      props.sender.id,
+      props.senderId,
       props.messageType,
       props.content,
-      props.chatRoom.id,
+      props.chatRoomId,
+      createdAt
+    );
+  }
+
+  public static fromPersistence(prismaChatMessage: PrismaChatMessage) {
+    const id = ChatMessageId(prismaChatMessage.id);
+    const senderId = MemberId(prismaChatMessage.senderId);
+    const messageType = prismaChatMessage.messageType;
+    const content = prismaChatMessage.content;
+    const chatRoomId = ChatRoomId(prismaChatMessage.chatRoomId);
+    const createdAt = prismaChatMessage.createdAt;
+
+    return new ChatMessage(
+      id,
+      senderId,
+      messageType,
+      content,
+      chatRoomId,
       createdAt
     );
   }
