@@ -42,4 +42,14 @@ export class ChatRoomService {
     //DTO 변환해서 마무리
     return toChatRoomDto(createdRoom);
   }
+  //자신의 채팅방 조회에만 사용됨으로 멤버가 유효한지에 대한 것은 판단하지 않겠음
+  public async findChatRoomsByMemberId(
+    memberId: MemberId
+  ): Promise<ChatRoomDto[]> {
+    const chatRooms = await this.chatRoomRepository.findByAllByMemberId(
+      memberId
+    );
+
+    return chatRooms.map(toChatRoomDto);
+  }
 }

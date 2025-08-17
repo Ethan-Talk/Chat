@@ -32,11 +32,25 @@ chatRoomRouter.post("", authMiddleware, async (req: AuthRequest, res, next) => {
       return res.status(400).json({ message: "Validation failed", errors });
     }
 
-    const creatorIdString = req.user.memberId;
-    const creatorId = MemberId(creatorIdString);
+    const creatorId = MemberId(req.user.memberId);
 
     const response = await chatRoomService.createChatRoom(creatorId, dto);
     res.status(201).json(response);
+  } catch (error) {
+    next(error);
+  }
+});
+
+chatRoomRouter.get("", authMiddleware, async (req: AuthRequest, res, next) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    const memberId = MemberId(req.user.memberId);
+
+    const response = await chatRoomService.findChatRoomsByMemberId(memberId);
+    res.status(200).json(response);
   } catch (error) {
     next(error);
   }

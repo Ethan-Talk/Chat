@@ -34,4 +34,18 @@ export class PrismaChatRoomRepository implements IChatRoomRepository {
 
     return prismaChatRoom ? ChatRoom.fromPersistence(prismaChatRoom) : null;
   }
+
+  async findByAllByMemberId(memberId: MemberId): Promise<ChatRoom[]> {
+    const prismaChatRooms = await this.prisma.chatRoom.findMany({
+      where: {
+        members: {
+          some: {
+            memberId: memberId,
+          },
+        },
+      },
+    });
+
+    return prismaChatRooms.map(ChatRoom.fromPersistence);
+  }
 }
