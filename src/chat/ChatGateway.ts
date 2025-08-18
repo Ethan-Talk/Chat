@@ -9,6 +9,7 @@ import {
 } from "./web/dto/ChatMessage.dto";
 import { ChatMessageService } from "./service/ChatMessageService";
 import { IChatRoomRepository } from "./domain/IChatRoomRepository";
+import { JoinRoomDto } from "./web/dto/ChatRoom.dto";
 
 //TODO: 파일 네이밍 변경
 export class ChatGateway {
@@ -52,71 +53,34 @@ export class ChatGateway {
     console.log(`✅ User connected: ${socket.id}, Member ID: ${memberId}`);
     this.userSocketMap.set(memberId, socket.id);
 
-    /*
-    // 각 이벤트에 대한 핸들러를 등록
-    socket.on("public", (dto: SendPublicMessageDto) =>
-      this.handlePublicMessage(socket, dto)
-    );
-    socket.on("private", (data) => this.handlePrivateMessage(socket, data));
-    */
     socket.on("sendMessage", (dto: SendMessageDto) =>
       this.handleSendMessage(socket, dto)
     );
     socket.on("disconnect", () => this.handleDisconnect(socket));
+    socket.on("joinRoom", (dto) => this.handleJoinRoom(socket, dto));
   };
 
-  /*
-  // 전체 메시지 처리
-  private handlePublicMessage = (socket: Socket, dto: SendPublicMessageDto) => {
-    const senderId = socket.data.memberId;
+  private handleJoinRoom = async (socket: Socket, dto: JoinRoomDto) => {
+    try {
+      //TODO 유효성 검사...?
 
+      const memberId = socket.data.memberId;
+      const roomId = ChatRoomId(dto.roomId);
 
-    //TODO 메시지 도메인, DTO 생성은 로직이 private,public 겹침 리팩토링 ㄱㄱ
-    const chatMessage = ChatMessage.create({
-      content: dto.content,
-      senderId: senderId,
-      messageType: dto.messageType as MessageType,
-      chatRoomId: this.lobbyRoomId,
-    });
+      const isMember = await this.chatRoomRepository.isMemberInRoom(
+        memberId,
+        roomId
+      );
+      if (!isMember) {
+        throw new Error("You are not a member of this room.");
+      }
 
-    const messageDto = ChatMessageDto.fromDomain(chatMessage);
-
-    this.io.to('lobby').emit('newMessage', messageDto)
-
-    //전송은 OK 근데 DB에 저장하는 건?
-  };
-
-  // 1:1 메시지 처리
-  private handlePrivateMessage = (
-    socket: Socket,
-    dto : SendMessageDto
-  ) => {
-    //상대 소켓을 알아야함... 소켓이 연결된 상태면 바로 보내면 되는데 안되면 DB에 저장하고 나중에 상대방이 확인할 수 있도록 해야함.
-    //그럼 ChatRoomId => 상대방의 ID => 상대방의 소켓 ID를 알아내는 로직을 구현해야 함
-
-    const recipientSocketId = this.userSocketMap.get(data.recipientId);
-    const senderId = socket.data.memberId;
-
-    const chatMessage = ChatMessage.create({
-      content: dto.content,
-      senderId : senderId,
-      messageType : dto.messageType as MessageType,
-      chatRoomId: dto.chatRoomId as ChatRoomId,
-    })
-
-    const messageDto = ChatMessageDto.fromDomain(chatMessage);
-
-    if (recipientSocketId) {
-      this.io.to(recipientSocketId).emit("private", messageDto); //받는 사람
-      socket.emit("private", messageDto); //보낸 사람.
-    } else {
-      socket.emit("deliveryFailed", {
-        message: "상대방이 오프라인 상태입니다.",
-      });
-      //DB에 저장...
+      socket.join(roomId);
+      socket.emit("joinedRoom", { roomId });
+    } catch (error) {
+      socket.emit("error", { message: (error as Error).message });
     }
   };
-  */
 
   private handleSendMessage = async (socket: Socket, dto: SendMessageDto) => {
     try {
@@ -148,7 +112,14 @@ export class ChatGateway {
 
   // 연결 종료 처리
   private handleDisconnect = (socket: Socket) => {
-    console.log(`❌ User disconnected: ${socket.id}`);
-    this.userSocketMap.delete(socket.data.memberId);
+    const memberId = socket.data.memberId;
+    if (memberId) {
+      console.log(`❌ User disconnected: ${socket.id}, Member ID: ${memberId}`);
+      // 👇 2. memberId가 있을 때만 map에서 삭제합니다.
+      this.userSocketMap.delete(memberId);
+    } else {
+      // memberId가 없는 비정상적인 연결 종료 (예: 인증 실패 후)
+      console.log(`❌ Socket disconnected: ${socket.id}`);
+    }
   };
 }
