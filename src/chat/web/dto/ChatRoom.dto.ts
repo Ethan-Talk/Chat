@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  IsNotEmpty,
   ArrayMinSize,
 } from "class-validator";
 
@@ -71,3 +72,9 @@ export class GroupChatRoomDto extends ChatRoomBaseDto {
 }
 
 export type ChatRoomDto = PrivateChatRoomDto | GroupChatRoomDto;
+
+export class JoinRoomDto {
+  @IsUUID("4")
+  @IsNotEmpty()
+  readonly roomId!: string;
+}

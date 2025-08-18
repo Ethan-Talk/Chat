@@ -3,7 +3,6 @@ import { PrismaChatRoomRepository } from "@/chat/repository/PrismaChatRoomReposi
 import { ChatRoomService } from "@/chat/service/ChatRoomService";
 import { MemberId } from "@/member/domain/MemberId";
 import { PrismaMemberRepository } from "@/member/repository/PrismaMemberRepository";
-import { PrismaClient } from "@prisma/client";
 import { plainToInstance } from "class-transformer";
 import { Router } from "express";
 import { ChatRoomCreateRequestDTO } from "../dto/ChatRoom.dto";

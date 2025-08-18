@@ -8,6 +8,12 @@ import { Server } from "socket.io";
 import { ChatGateway } from "./chat/ChatGateway";
 import { instrument } from "@socket.io/admin-ui";
 import { chatRoomRouter } from "./chat/web/controller/chatRoom.router";
+import { PrismaChatMessageRepository } from "./chat/repository/PrismaChatMessageRepository";
+import { prisma } from "./lib/prisma";
+import { ChatMessageId } from "./chat/domain/ChatMessage";
+import { ChatMessageService } from "./chat/service/ChatMessageService";
+import { PrismaChatRoomRepository } from "./chat/repository/PrismaChatRoomRepository";
+import { PrismaMemberRepository } from "./member/repository/PrismaMemberRepository";
 
 // 1. Express 앱 생성
 const app = express();
@@ -20,12 +26,22 @@ const io = new Server(httpServer, {
   },
 });
 
+const ChatMessageRepository = new PrismaChatMessageRepository(prisma);
+const chatRoomRepository = new PrismaChatRoomRepository(prisma);
+const memberRepository = new PrismaMemberRepository(prisma);
+
+const chatMessageService = new ChatMessageService(
+  ChatMessageRepository,
+  memberRepository,
+  chatRoomRepository
+);
+
 instrument(io, {
   auth: false,
   mode: "development",
 });
 
-const chatGateway = new ChatGateway(io);
+const chatGateway = new ChatGateway(io, chatMessageService, chatRoomRepository);
 chatGateway.initialize();
 
 app.use(
