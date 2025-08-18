@@ -1,6 +1,5 @@
 import { Server, Socket } from "socket.io";
 import { validateAccessToken } from "@/auth/auth.utils";
-import { ChatMessage } from "./domain/ChatMessage";
 import { ChatRoomId } from "./domain/ChatRoom";
 
 import {

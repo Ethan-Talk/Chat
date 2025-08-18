@@ -32,7 +32,7 @@ export class ChatMessage {
     const id = ChatMessageId(uuidv4());
     const createdAt = new Date();
 
-    if (!props.content) {
+    if (!props.content || !props.content.trim()) {
       throw new Error("Message content cannot be empty.");
     }
 

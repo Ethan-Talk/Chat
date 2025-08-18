@@ -60,7 +60,7 @@ memberRouter.get("/me", authMiddleware, async (req: AuthRequest, res, next) => {
   try {
     if (!req.user) {
       // 미들웨어는 통과했지만, 이 경로는 인증이 필수이므로 401 에러를 응답합니다.
-      //TODO: 흠...
+      //TODO: 미들웨어 통과하면 인증은 된거니 403아닌가? 확인 해야함.
       return res.status(401).json({ message: "Authentication required" });
     }
 
