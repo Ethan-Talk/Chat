@@ -8,41 +8,13 @@ import { validate } from "class-validator";
 import { generateAccessToken } from "@/auth/auth.utils";
 import { authMiddleware, AuthRequest } from "@/auth/auth.middleware";
 import { MemberId } from "../domain/MemberId";
+import { prisma } from "@/lib/prisma";
 
-const prisma = new PrismaClient();
 const memberRepository = new PrismaMemberRepository(prisma);
 const memberService = new MemberService(memberRepository);
 
 const memberRouter = Router();
 
-/**
- * @swagger
- * /api/v1/members/signup:
- * post:
- * summary: "회원가입"
- * description: "새로운 회원을 생성합니다."
- * tags: [Members]
- * requestBody:
- * required: true
- * content:
- * application/json:
- * schema:
- * type: object
- * properties:
- * loginId:
- * type: string
- * nickname:
- * type: string
- * password:
- * type: string
- * responses:
- * "201":
- * description: "회원가입 성공"
- * content:
- * application/json:
- * schema:
- * $ref: '#/components/schemas/MemberDto'
- */
 memberRouter.post("/signup", async (req, res, next) => {
   try {
     const memberSignUpDto = plainToInstance(MemberSignUpDto, req.body);
@@ -88,6 +60,7 @@ memberRouter.get("/me", authMiddleware, async (req: AuthRequest, res, next) => {
   try {
     if (!req.user) {
       // 미들웨어는 통과했지만, 이 경로는 인증이 필수이므로 401 에러를 응답합니다.
+      //TODO: 흠...
       return res.status(401).json({ message: "Authentication required" });
     }
 

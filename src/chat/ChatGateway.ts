@@ -1,6 +1,6 @@
 import { Server, Socket } from "socket.io";
 import { validateAccessToken } from "@/auth/auth.utils";
-
+//TODO: 파일 네이밍 변경
 export class ChatGateway {
   private io: Server;
   private userSocketMap = new Map<string, string>();
@@ -34,6 +34,8 @@ export class ChatGateway {
     console.log(`✅ User connected: ${socket.id}, Member ID: ${memberId}`);
     this.userSocketMap.set(memberId, socket.id);
 
+    socket.join("lobby");
+
     // 각 이벤트에 대한 핸들러를 등록
     socket.on("public", (message: string) =>
       this.handlePublicMessage(socket, message)
@@ -44,6 +46,8 @@ export class ChatGateway {
 
   // 전체 메시지 처리
   private handlePublicMessage = (socket: Socket, message: string) => {
+    const senderId = socket.data.memberId;
+
     this.io.emit("public", {
       senderId: socket.data.memberId,
       message: message,
