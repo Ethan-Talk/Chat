@@ -14,6 +14,7 @@ import { ChatMessageId } from "./chat/domain/ChatMessage";
 import { ChatMessageService } from "./chat/service/ChatMessageService";
 import { PrismaChatRoomRepository } from "./chat/repository/PrismaChatRoomRepository";
 import { PrismaMemberRepository } from "./member/repository/PrismaMemberRepository";
+import { chatMessageRouter } from "./chat/web/controller/chatMessage.router";
 
 // 1. Express 앱 생성
 const app = express();
@@ -32,7 +33,6 @@ const memberRepository = new PrismaMemberRepository(prisma);
 
 const chatMessageService = new ChatMessageService(
   ChatMessageRepository,
-  memberRepository,
   chatRoomRepository
 );
 
@@ -54,6 +54,7 @@ app.use(express.json());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use("/api/v1/members", memberRouter);
 app.use("/api/v1/chatRooms", chatRoomRouter);
+app.use("/api/v1/chatMessages", chatMessageRouter);
 
 httpServer.listen(port, () => {
   console.log(`🚀 Server is running at http://localhost:${port}`);

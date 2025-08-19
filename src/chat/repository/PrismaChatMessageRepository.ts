@@ -21,4 +21,17 @@ export class PrismaChatMessageRepository implements IChatMessageRepository {
 
     return ChatMessage.fromPersistence(prismaChatMessage);
   }
+
+  async getAllMessageByChatRoomId(
+    chatRoomId: ChatRoomId
+  ): Promise<ChatMessage[]> {
+    const prismaMessages = await this.prisma.chatMessage.findMany({
+      where: { chatRoomId: chatRoomId },
+      orderBy: {
+        createdAt: "asc", // 오래된 메시지부터 순서대로 정렬
+      },
+    });
+
+    return prismaMessages.map(ChatMessage.fromPersistence);
+  }
 }

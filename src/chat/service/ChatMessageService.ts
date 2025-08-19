@@ -10,7 +10,6 @@ import { IChatRoomRepository } from "../domain/IChatRoomRepository";
 export class ChatMessageService {
   constructor(
     private readonly chatMessageRepository: IChatMessageRepository,
-    private readonly memberRepository: IMemberRepository,
     private readonly chatRoomRepository: IChatRoomRepository
   ) {}
 
@@ -41,5 +40,25 @@ export class ChatMessageService {
     );
 
     return ChatMessageDto.fromDomain(createdChatMessage);
+  }
+
+  public async getAllMessagesByChatRoomId(
+    memberId: MemberId,
+    roomId: ChatRoomId
+  ): Promise<ChatMessageDto[]> {
+    const isMember = await this.chatRoomRepository.isMemberInRoom(
+      memberId,
+      roomId
+    );
+
+    if (!isMember) {
+      throw new Error("You are not a member of this room.");
+    }
+
+    const messages = await this.chatMessageRepository.getAllMessageByChatRoomId(
+      roomId
+    );
+
+    return messages.map(ChatMessageDto.fromDomain);
   }
 }
