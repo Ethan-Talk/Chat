@@ -17,6 +17,92 @@ const chatMessageService = new ChatMessageService(
 
 const chatMessageRouter = Router();
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     ChatMessageDto:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         messageType:
+ *           type: string
+ *           enum: [TEXT, IMAGE, FILE]  # MessageType enum 값에 맞춰서
+ *         content:
+ *           type: string
+ *         senderId:
+ *           type: string
+ *         chatRoomId:
+ *           type: string
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *       required:
+ *         - id
+ *         - messageType
+ *         - content
+ *         - senderId
+ *         - chatRoomId
+ *         - createdAt
+ *
+ *     SendMessageDto:
+ *       type: object
+ *       properties:
+ *         chatRoomId:
+ *           type: string
+ *           format: uuid
+ *         messageType:
+ *           type: string
+ *           enum: [TEXT, IMAGE, FILE]
+ *         content:
+ *           type: string
+ *       required:
+ *         - chatRoomId
+ *         - messageType
+ *         - content
+ *
+ *     SendPublicMessageDto:
+ *       type: object
+ *       properties:
+ *         messageType:
+ *           type: string
+ *           enum: [TEXT, IMAGE, FILE]
+ *         content:
+ *           type: string
+ *       required:
+ *         - messageType
+ *         - content
+ */
+
+/**
+ * @swagger
+ * /api/v1/chat/messages/{roomId}:
+ *   get:
+ *     summary: "채팅방 메시지 조회"
+ *     tags: [ChatMessages]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: roomId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: "조회할 채팅방 ID"
+ *     responses:
+ *       "200":
+ *         description: "메시지 조회 성공"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/ChatMessageDto'
+ *       "401":
+ *         description: "인증 실패"
+ */
 chatMessageRouter.get(
   "/:roomid",
   authMiddleware,

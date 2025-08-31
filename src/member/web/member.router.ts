@@ -10,11 +10,75 @@ import { authMiddleware, AuthRequest } from "@/auth/auth.middleware";
 import { MemberId } from "../domain/MemberId";
 import { prisma } from "@/lib/prisma";
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     MemberSignUpDto:
+ *       type: object
+ *       properties:
+ *         loginId:
+ *           type: string
+ *         nickname:
+ *           type: string
+ *         password:
+ *           type: string
+ *       required:
+ *         - loginId
+ *         - nickname
+ *         - password
+ *
+ *     MemberSignInDTO:
+ *       type: object
+ *       properties:
+ *         loginId:
+ *           type: string
+ *         password:
+ *           type: string
+ *       required:
+ *         - loginId
+ *         - password
+ *
+ *     MemberDto:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         loginId:
+ *           type: string
+ *         nickname:
+ *           type: string
+ *       required:
+ *         - id
+ *         - loginId
+ *         - nickname
+ */
+
 const memberRepository = new PrismaMemberRepository(prisma);
 const memberService = new MemberService(memberRepository);
 
 const memberRouter = Router();
 
+/**
+ * @swagger
+ * /api/v1/members/signup:
+ *  post:
+ *    summary: "회원가입"
+ *    tags: [Members]
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/MemberSignUpDto'
+ *    responses:
+ *      "201":
+ *        description: "회원가입 성공"
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/MemberDto'
+ */
 memberRouter.post("/signup", async (req, res, next) => {
   try {
     const memberSignUpDto = plainToInstance(MemberSignUpDto, req.body);
@@ -33,6 +97,33 @@ memberRouter.post("/signup", async (req, res, next) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/v1/members/signin:
+ *   post:
+ *     summary: "로그인"
+ *     tags: [Members]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/MemberSignInDTO'
+ *     responses:
+ *       "200":
+ *         description: "로그인 성공. 토큰은 Authorization 헤더에 Bearer 토큰으로 포함됨."
+ *         headers:
+ *           Authorization:
+ *             description: "Bearer {accessToken}"
+ *             schema:
+ *               type: string
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MemberDto'
+ *       "401":
+ *         description: "인증 실패"
+ */
 memberRouter.post("/signin", async (req, res, next) => {
   try {
     const memberSignInDTO = plainToInstance(MemberSignInDTO, req.body);
@@ -56,6 +147,24 @@ memberRouter.post("/signin", async (req, res, next) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/v1/members/me:
+ *   get:
+ *     summary: "내 정보 조회"
+ *     tags: [Members]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       "200":
+ *         description: "조회 성공"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MemberDto'
+ *       "401":
+ *         description: "인증 실패 (토큰 없음)"
+ */
 memberRouter.get("/me", authMiddleware, async (req: AuthRequest, res, next) => {
   try {
     if (!req.user) {
