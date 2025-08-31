@@ -77,7 +77,7 @@ const chatMessageRouter = Router();
 
 /**
  * @swagger
- * /api/v1/chat/messages/{roomId}:
+ * /api/v1/chatMessages/{roomId}:
  *   get:
  *     summary: "채팅방 메시지 조회"
  *     tags: [ChatMessages]
@@ -104,7 +104,7 @@ const chatMessageRouter = Router();
  *         description: "인증 실패"
  */
 chatMessageRouter.get(
-  "/:roomid",
+  "/:roomId",
   authMiddleware,
   async (req: AuthRequest, res, next) => {
     try {
