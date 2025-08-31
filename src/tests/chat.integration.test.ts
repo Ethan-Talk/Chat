@@ -15,7 +15,6 @@ import express from "express";
 import { chatRoomRouter } from "@/chat/web/controller/chatRoom.router";
 import axios from "axios";
 import { PrismaClient, RoomType } from "@prisma/client";
-import { JoinRoomDto } from "@/chat/web/dto/ChatRoom.dto";
 
 describe("1대1 채팅 기능 통합 테스트", () => {
   let io: SocketIOServer,
@@ -74,13 +73,15 @@ describe("1대1 채팅 기능 통합 테스트", () => {
     io = new SocketIOServer(server);
     httpTerminator = createHttpTerminator({ server });
 
-    const memberRepo = new PrismaMemberRepository(prisma);
+    const memberRepository = new PrismaMemberRepository(prisma);
     const chatRoomRepository = new PrismaChatRoomRepository(prisma);
     const chatMessageRepository = new PrismaChatMessageRepository(prisma);
-    const chatRoomService = new ChatRoomService(chatRoomRepository, memberRepo);
+    const chatRoomService = new ChatRoomService(
+      chatRoomRepository,
+      memberRepository
+    );
     const chatMessageService = new ChatMessageService(
       chatMessageRepository,
-      memberRepo,
       chatRoomRepository
     );
     const chatGateway = new ChatGateway(
