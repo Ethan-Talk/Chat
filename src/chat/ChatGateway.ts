@@ -10,22 +10,28 @@ import {
 import { ChatMessageService } from "./service/ChatMessageService";
 import { IChatRoomRepository } from "./domain/IChatRoomRepository";
 import { JoinRoomDto } from "./web/dto/ChatRoom.dto";
+import { MemberId } from "@/member/domain/MemberId";
+import { Member } from "@/member/domain/Member";
+import { PresenceService } from "./service/PresenceService";
 
 //TODO: 파일 네이밍 변경
 export class ChatGateway {
   private io: Server;
   private chatMessageService: ChatMessageService;
   private chatRoomRepository: IChatRoomRepository;
-  private userSocketMap = new Map<string, string>();
+  private presenceService: PresenceService;
 
   constructor(
     io: Server,
     chatMessageService: ChatMessageService,
-    chatRoomRepository: IChatRoomRepository
+    chatRoomRepository: IChatRoomRepository,
+    presenceService: PresenceService
   ) {
     this.io = io;
     this.chatMessageService = chatMessageService;
     this.chatRoomRepository = chatRoomRepository;
+    this.presenceService = presenceService;
+
   }
 
   // 게이트웨이 초기 설정
@@ -40,7 +46,7 @@ export class ChatGateway {
     if (!token) return next(new Error("액세스 토큰이 없습니다."));
     try {
       const decoded = validateAccessToken(token);
-      socket.data = { memberId: decoded.memberId };
+      socket.data = { memberId: MemberId(decoded.memberId) };
       next();
     } catch (error) {
       return next(new Error("유효하지 않은 액세스 토큰"));
@@ -51,7 +57,7 @@ export class ChatGateway {
   private handleConnection = (socket: Socket) => {
     const memberId = socket.data.memberId;
     console.log(`✅ User connected: ${socket.id}, Member ID: ${memberId}`);
-    this.userSocketMap.set(memberId, socket.id);
+    this.presenceService.addUser(memberId, socket.id)
 
     socket.on("sendMessage", (dto: SendMessageDto) =>
       this.handleSendMessage(socket, dto)
@@ -116,7 +122,7 @@ export class ChatGateway {
     if (memberId) {
       console.log(`❌ User disconnected: ${socket.id}, Member ID: ${memberId}`);
       // 👇 2. memberId가 있을 때만 map에서 삭제합니다.
-      this.userSocketMap.delete(memberId);
+      this.presenceService.removeUser(memberId)
     } else {
       // memberId가 없는 비정상적인 연결 종료 (예: 인증 실패 후)
       console.log(`❌ Socket disconnected: ${socket.id}`);

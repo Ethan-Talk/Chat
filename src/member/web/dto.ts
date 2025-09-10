@@ -6,6 +6,7 @@ export class MemberDto {
   readonly id: MemberId;
   readonly loginId: string;
   readonly nickname: string;
+  isOnline: boolean = false; 
 
   private constructor(props: {
     id: MemberId;
