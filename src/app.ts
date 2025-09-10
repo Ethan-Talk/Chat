@@ -15,6 +15,7 @@ import { ChatMessageService } from "./chat/service/ChatMessageService";
 import { PrismaChatRoomRepository } from "./chat/repository/PrismaChatRoomRepository";
 import { PrismaMemberRepository } from "./member/repository/PrismaMemberRepository";
 import { chatMessageRouter } from "./chat/web/controller/chatMessage.router";
+import { PresenceService } from "./chat/service/PresenceService";
 
 // 1. Express 앱 생성
 const app = express();
@@ -27,6 +28,7 @@ const io = new Server(httpServer, {
   },
 });
 
+const presenceService = new PresenceService();
 const ChatMessageRepository = new PrismaChatMessageRepository(prisma);
 const chatRoomRepository = new PrismaChatRoomRepository(prisma);
 const memberRepository = new PrismaMemberRepository(prisma);
@@ -41,7 +43,7 @@ instrument(io, {
   mode: "development",
 });
 
-const chatGateway = new ChatGateway(io, chatMessageService, chatRoomRepository);
+const chatGateway = new ChatGateway(io, chatMessageService, chatRoomRepository, presenceService);
 chatGateway.initialize();
 
 app.use(

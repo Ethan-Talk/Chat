@@ -3,9 +3,13 @@ import { Member } from "../domain/Member";
 import { MemberId } from "../domain/MemberId";
 import * as bcrypt from "bcrypt";
 import { MemberDto, MemberSignInDTO, MemberSignUpDto } from "@/member/web/dto";
+import { PresenceService } from "@/chat/service/PresenceService";
 
 export class MemberService {
-  constructor(private readonly memberRepository: IMemberRepository) {}
+  constructor(
+    private readonly memberRepository: IMemberRepository,
+    private readonly presenceService: PresenceService
+  ) {}
 
   //회원가입
   public async signup(props: MemberSignUpDto): Promise<MemberDto> {
@@ -58,6 +62,10 @@ export class MemberService {
       throw new Error("Member not found");
     }
 
-    return MemberDto.fromDomain(member);
+    const memberDto = MemberDto.fromDomain(member);
+
+    memberDto.isOnline = this.presenceService.isUserOnline(memberId);
+
+    return memberDto;
   }
 }
