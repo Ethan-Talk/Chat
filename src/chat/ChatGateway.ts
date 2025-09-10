@@ -57,7 +57,7 @@ export class ChatGateway {
   private handleConnection = (socket: Socket) => {
     const memberId = socket.data.memberId;
     console.log(`✅ User connected: ${socket.id}, Member ID: ${memberId}`);
-    this.presenceService.addUser(memberId, socket.id)
+    this.presenceService.addUser(memberId, socket.id);
 
     socket.on("sendMessage", (dto: SendMessageDto) =>
       this.handleSendMessage(socket, dto)
@@ -122,7 +122,7 @@ export class ChatGateway {
     if (memberId) {
       console.log(`❌ User disconnected: ${socket.id}, Member ID: ${memberId}`);
       // 👇 2. memberId가 있을 때만 map에서 삭제합니다.
-      this.presenceService.removeUser(memberId)
+      this.presenceService.removeUser(memberId);
     } else {
       // memberId가 없는 비정상적인 연결 종료 (예: 인증 실패 후)
       console.log(`❌ Socket disconnected: ${socket.id}`);

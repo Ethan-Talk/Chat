@@ -64,8 +64,8 @@ export class MemberService {
 
     const memberDto = MemberDto.fromDomain(member);
 
-    memberDto.isOnline = this.presenceService.isUserOnline(memberId)
+    memberDto.isOnline = this.presenceService.isUserOnline(memberId);
 
-    return memberDto
+    return memberDto;
   }
 }
