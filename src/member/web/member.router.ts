@@ -55,7 +55,7 @@ import { PresenceService } from "@/chat/service/PresenceService";
  *         - nickname
  */
 
-const presenceService = new PresenceService
+const presenceService = new PresenceService();
 const memberRepository = new PrismaMemberRepository(prisma);
 const memberService = new MemberService(memberRepository, presenceService);
 
