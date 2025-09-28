@@ -15,6 +15,7 @@ import express from "express";
 import { chatRoomRouter } from "@/chat/web/controller/chatRoom.router";
 import axios from "axios";
 import { PrismaClient, RoomType } from "@prisma/client";
+import { PresenceService } from "@/chat/service/PresenceService";
 
 describe("1대1 채팅 기능 통합 테스트", () => {
   let io: SocketIOServer,
@@ -84,10 +85,13 @@ describe("1대1 채팅 기능 통합 테스트", () => {
       chatMessageRepository,
       chatRoomRepository
     );
+
+    const presenceService = new PresenceService();
     const chatGateway = new ChatGateway(
       io,
       chatMessageService,
-      chatRoomRepository
+      chatRoomRepository,
+      presenceService
     );
 
     app.use("/api/v1/rooms", chatRoomRouter); // 👈 API 테스트를 위해 라우터 연결

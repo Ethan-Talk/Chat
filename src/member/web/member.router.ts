@@ -9,6 +9,7 @@ import { generateAccessToken } from "@/auth/auth.utils";
 import { authMiddleware, AuthRequest } from "@/auth/auth.middleware";
 import { MemberId } from "../domain/MemberId";
 import { prisma } from "@/lib/prisma";
+import { PresenceService } from "@/chat/service/PresenceService";
 
 /**
  * @swagger
@@ -54,8 +55,9 @@ import { prisma } from "@/lib/prisma";
  *         - nickname
  */
 
+const presenceService = new PresenceService
 const memberRepository = new PrismaMemberRepository(prisma);
-const memberService = new MemberService(memberRepository);
+const memberService = new MemberService(memberRepository, presenceService);
 
 const memberRouter = Router();
 
