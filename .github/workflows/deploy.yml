@@ -1,0 +1,64 @@
+# 워크플로우의 이름을 지정합니다.
+name: Deploy to AWS EC2
+
+# 워크플로우가 실행될 시점을 지정합니다.
+# dev 브랜치에 push 이벤트가 발생했을 때 실행됩니다.
+on:
+  push:
+    branches:
+      - dev
+
+# OIDC 토큰을 발급받기 위한 권한을 설정합니다.
+permissions:
+  id-token: write
+  contents: read
+
+# 실행될 작업(job)들을 정의합니다.
+jobs:
+  build-and-deploy:
+    # 이 job이 실행될 가상 환경을 지정합니다.
+    runs-on: ubuntu-latest
+
+    # job의 단계(step)들을 정의합니다.
+    steps:
+      # 1. runner에서 레퍼지토리 코드 가져오기
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # OIDC를 사용하여 AWS 임시 자격 증명을 얻습니다.
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }} # GitHub Secret에서 역할 ARN 가져오기
+          aws-region: ${{ secrets.AWS_REGION }} # GitHub Secret에서 리전 가져오기
+
+      # Docker Hub에 로그인합니다.
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 2 & 3. EC2(AMD64)용 Docker 이미지를 빌드하고 Docker Hub에 푸시합니다.
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platform: linux/amd64
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/backend:latest
+
+      # 4 & 5. SSM Run Command를 사용하여 EC2에 배포 명령을 내립니다.
+      - name: Deploy to EC2 via SSM Run Command
+        run: |
+          aws ssm send-command \
+            --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploying new version" \
+            --parameters 'commands=[
+              "cd /home/ssm-user/my-chat-app",
+              "sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/backend:latest",
+              "sudo docker compose down",
+              "sudo docker compose up -d",
+              "sudo docker system prune -f"
+            ]'
