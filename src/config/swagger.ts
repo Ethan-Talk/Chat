@@ -14,7 +14,7 @@ const options: swaggerJsdoc.Options = {
     // 2. API 서버의 기본 URL
     servers: [
       {
-        url: "/", // 우리 로컬 서버 주소
+        url: "/",
       },
     ],
     components: {
