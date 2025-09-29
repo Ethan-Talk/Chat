@@ -49,6 +49,7 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/backend:latest
 
       # 4 & 5. SSM Run Command를 사용하여 EC2에 배포 명령을 내립니다.
+      # TODO: 에러 핸들링 추가 필요
       - name: Deploy to EC2 via SSM Run Command
         run: |
           aws ssm send-command \
@@ -56,7 +57,7 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --comment "Deploying new version" \
             --parameters 'commands=[
-              "cd /home/ssm-user/my-chat-app",
+              "cd ${{ secrets.EC2_APP_PATH }}",
               "sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/backend:latest",
               "sudo docker compose down",
               "sudo docker compose up -d",
