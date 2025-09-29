@@ -57,5 +57,5 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --comment "Deploying new version" \
             --parameters 'commands=[
-              "cd ${{ secrets.EC2_APP_PATH }} && sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/backend:latest && sudo docker-compose down && sudo docker-compose up -d && sudo docker image prune -f"
+              "cd ${{ secrets.EC2_APP_PATH }} && sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/backend:latest && sudo docker compose down && sudo docker compose up -d && sudo docker image prune -f"
             ]'
