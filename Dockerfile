@@ -28,6 +28,8 @@ FROM node:18-alpine
 
 WORKDIR /app
 
+ENV NODE_ENV=production
+
 # 프로덕션용 의존성만 설치, dev 제외
 COPY package*.json ./
 RUN npm ci --omit=dev
