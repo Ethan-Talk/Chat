@@ -1,6 +1,8 @@
 import swaggerJsdoc from "swagger-jsdoc";
 import path from "path";
 
+const fileExtension = process.env.NODE_ENV === 'production' ? '.js' : '.ts';
+
 const options: swaggerJsdoc.Options = {
   // 1. Swagger 명세서의 기본 정보
   definition: {
@@ -32,9 +34,9 @@ const options: swaggerJsdoc.Options = {
   },
   // 3. API 정보가 담긴 파일 경로 (우리가 만든 라우터 파일)
   apis: [
-    path.join(__dirname, "../member/web/*.router.ts"),
-    path.join(__dirname, "../chat/web/controller/*.router.ts"),
-    path.join(__dirname, "../health/*.router.ts"),
+    path.join(__dirname, `../member/web/*.router${fileExtension}`),
+    path.join(__dirname, `../chat/web/controller/*.router${fileExtension}`),
+    path.join(__dirname, `../health/*.router${fileExtension}`),
   ],
 };
 
